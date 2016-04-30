@@ -8,7 +8,6 @@ module PursuitClient
     , Result(..)
     ) where
 
-import Data.Maybe (mapMaybe)
 import Data.Monoid ((<>))
 import Control.Exception (catch)
 import Network.Wreq
@@ -50,7 +49,7 @@ showContent = \case
 -- | search in pursuit
 search :: String -> IO (Either String [Result])
 search str =
-    fmap pure (results <$> find str) `catchHttp` (pure . Left . show)
+    (results <$> find str) `catchHttp` (pure . Left . show)
 
 catchHttp :: IO a -> (HttpException -> IO a) -> IO a
 catchHttp = catch
@@ -62,13 +61,13 @@ find s = do
     let res = txt ^.. html . allAttributed (folded . only "search-result")
     pure res
 
-results :: [Element] -> [Result]
-results = mapMaybe result
+results :: [Element] -> Either String [Result]
+results = traverse result
 
-result :: Element -> Maybe Result
+result :: Element -> Either String Result
 result r = do
-    url <- getUrl r
-    let cont = (parseContent . getContent . NodeElement) r
+    url <- maybe (Left "Unable to parse element. please report this.") pure $ getUrl r
+    cont <- (parseContent . getContent . NodeElement) r
     pure $ Result cont url
 
 getUrl :: Element -> Maybe T.Text
@@ -78,42 +77,46 @@ getContent :: Node -> [T.Text]
 getContent c = c ^.. to universe . traverse . content
 
 
-parseContent :: [T.Text] -> Content
-parseContent ["package",pkg] = Package pkg
+parseContent :: [T.Text] -> Either String Content
+parseContent ["package",pkg] = pure $ Package pkg
 parseContent (reverse -> pkg:cont)
   | T.take 4 (head cont) == " :: " =
-    Value (mconcat $ reverse $ tail cont) (T.drop 4 $ head cont) pkg
+    pure $ Value (mconcat $ reverse $ tail cont) (T.drop 4 $ head cont) pkg
 
   | last cont == "type" && T.any (=='=') (head cont) =
-    Type
+    pure $ Type
         (mconcat $ reverse $ tail $ init cont)
         (T.words  $ T.takeWhile (/='=') $ head cont)
         (T.drop 2 $ T.dropWhile (/='=') $ head cont)
         pkg
 
   | T.take 5 (T.reverse (head cont)) == T.reverse "where" && last cont == "class" =
-    Class
+    pure $ Class
         (mconcat $ reverse $ tail $ init cont)
         (init $ T.words $ head cont)
         pkg
 
   | last cont == "module" =
-    Module
+    pure $ Module
         (mconcat $ reverse $ init cont)
         pkg
 
   | last cont == "data" =
-    Data
+    pure $ Data
         (mconcat $ reverse $ tail $ init cont)
         (T.words $ head cont)
         pkg
 
 
   | last cont == "newtype" =
-    NewType
+    pure $ NewType
         (mconcat $ reverse $ tail $ init cont)
         (T.words $ head cont)
         pkg
 
 
-parseContent x = error ("No rule to parse: " ++ show x)
+parseContent x =
+  Left $ unlines
+      ["Error: No rule to parse: " ++ show x
+      ,"Please report this."
+      ]
