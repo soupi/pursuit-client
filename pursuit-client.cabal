@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     PursuitClient
+  exposed-modules:     Web.Pursuit.Client
   build-depends:
       base >= 4.7 && < 5
     , wreq

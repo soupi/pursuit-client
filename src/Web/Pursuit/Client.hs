@@ -1,11 +1,13 @@
 {-# LANGUAGE OverloadedStrings, LambdaCase #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module PursuitClient
-    ( search
-    , showContent
+-- | API for querying pursuit.purescript.org
+module Web.Pursuit.Client
+    ( Result(..)
     , Content(..)
-    , Result(..)
+    , search
+    , showResult
+    , showContent
     ) where
 
 import Data.Monoid ((<>))
@@ -34,6 +36,14 @@ data Content
   | Module T.Text T.Text -- | name, package
   | Package T.Text -- | package
     deriving (Show, Eq)
+
+-- | Pretty print a result
+showResult :: Result -> T.Text
+showResult res =
+    T.unlines $ map ($ res)
+        [ showContent . rCont
+        , rUrl
+        ]
 
 -- | Pretty print the contents of a result
 showContent :: Content -> T.Text
