@@ -1,8 +1,8 @@
 name:                pursuit-client
-version:             0.1.0.0
+version:             0.1.0
 synopsis:            A cli client for pursuit
 description:         Please see README.md
-homepage:            https://github.com/githubuser/pursuit-client#readme
+homepage:            https://github.com/soupi/pursuit-client
 license:             BSD3
 license-file:        LICENSE
 author:              Gil Mizrahi
@@ -37,4 +37,4 @@ executable pursuit-search
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/pursuit-client
+  location: https://github.com/soupi/pursuit-client
