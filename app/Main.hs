@@ -1,17 +1,17 @@
-{-# Language LambdaCase #-}
+{-# Language OverloadedStrings, LambdaCase #-}
 
 module Main where
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import System.Environment (getArgs)
-import Lib
+import PursuitClient
 
 main :: IO ()
 main =
     getArgs >>= \case
         [] -> putStrLn "usage: pursuit-search <search-string>"
-        xs -> T.putStrLn . showResults =<< search (concat xs)
+        xs -> T.putStrLn . either T.pack showResults =<< search (concat xs)
 
 
 showResults :: [Result] -> T.Text
@@ -21,7 +21,6 @@ showResults =
 showResult :: Result -> T.Text
 showResult result =
     T.unlines $ map ($ result)
-        [ rSig
-        , rMod
+        [ showContent . rCont
         , rUrl
         ]
