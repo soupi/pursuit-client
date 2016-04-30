@@ -22,19 +22,19 @@ import Data.Text.Lazy.Encoding (decodeUtf8)
 
 -- | A single result of a query
 data Result = Result
-  { rCont :: Content -- | content of the result
-  , rUrl  :: T.Text  -- | url for more info
+  { rCont :: Content -- ^ content of the result
+  , rUrl  :: T.Text  -- ^ url for more info
   } deriving (Show, Eq)
 
 -- | Different types of results
 data Content
-  = Value T.Text T.Text T.Text -- name, signature, package
-  | Type T.Text [T.Text] T.Text T.Text -- name, type args, body, package
-  | NewType T.Text [T.Text] T.Text -- name, type args, package
-  | Data T.Text [T.Text] T.Text -- name, type args, package
-  | Class T.Text [T.Text] T.Text -- name, type args, package
-  | Module T.Text T.Text -- | name, package
-  | Package T.Text -- | package
+  = Value T.Text T.Text T.Text -- ^ name, signature, package
+  | Type T.Text [T.Text] T.Text T.Text -- ^ name, type args, body, package
+  | NewType T.Text [T.Text] T.Text -- ^ name, type args, package
+  | Data T.Text [T.Text] T.Text -- ^ name, type args, package
+  | Class T.Text [T.Text] T.Text -- ^ name, type args, package
+  | Module T.Text T.Text -- ^ name, package
+  | Package T.Text -- ^ package
     deriving (Show, Eq)
 
 -- | Pretty print a result
