@@ -22,7 +22,6 @@ library
     , http-client
     , lens
     , taggy-lens
-    , async
     , text
   default-language:    Haskell2010
 
