@@ -10,8 +10,8 @@ import PursuitClient
 main :: IO ()
 main =
     getArgs >>= \case
-        [] -> putStrLn "usage: pursuit-search <search-string>"
-        xs -> T.putStrLn . either T.pack showResults =<< search (concat xs)
+        [] -> putStrLn "usage: pursuit-search \"<search-string>\""
+        xs -> T.putStrLn . either T.pack showResults =<< search (unwords xs)
 
 
 showResults :: [Result] -> T.Text

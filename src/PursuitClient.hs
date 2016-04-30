@@ -29,6 +29,7 @@ data Result = Result
 data Content
   = Value T.Text T.Text T.Text -- name, signature, package
   | Type T.Text [T.Text] T.Text T.Text -- name, type args, body, package
+  | NewType T.Text [T.Text] T.Text -- name, type args, package
   | Data T.Text [T.Text] T.Text -- name, type args, package
   | Class T.Text [T.Text] T.Text -- name, type args, package
   | Module T.Text T.Text -- | name, package
@@ -40,8 +41,9 @@ showContent :: Content -> T.Text
 showContent = \case
   Value nm sig pkg -> nm <> " :: " <> sig <> "\n" <> pkg
   Type nm args body pkg -> T.intercalate " " (nm:args) <> " = " <> body <> "\n" <> pkg
-  Data nm args pkg -> T.intercalate " " (nm:args) <> "\n" <> pkg
-  Class nm args pkg -> "data " <> T.intercalate " " (nm:args) <> "\n" <> pkg
+  Data nm args pkg -> "data " <> T.intercalate " " (nm:args) <> "\n" <> pkg
+  NewType nm args pkg -> "newtype " <> T.intercalate " " (nm:args) <> "\n" <> pkg
+  Class nm args pkg -> "class " <> T.intercalate " " (nm:args) <> "\n" <> pkg
   Module nm pkg -> "module " <> nm <> "\n" <> pkg
   Package pkg -> "package " <> pkg
 
@@ -102,8 +104,16 @@ parseContent (reverse -> pkg:cont)
 
   | last cont == "data" =
     Data
-        (mconcat $ reverse $ init cont)
+        (mconcat $ reverse $ tail $ init cont)
         (T.words $ head cont)
         pkg
+
+
+  | last cont == "newtype" =
+    NewType
+        (mconcat $ reverse $ tail $ init cont)
+        (T.words $ head cont)
+        pkg
+
 
 parseContent x = error ("No rule to parse: " ++ show x)
